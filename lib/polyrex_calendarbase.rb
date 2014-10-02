@@ -28,8 +28,11 @@ module LIBRARY
 
   def fetch_file(filename)
 
-    lib = File.dirname(__FILE__)
-    File.read filename      
+    #lib = File.dirname(__FILE__)
+    #File.read filename      
+    lib = 'http://rorbuilder.info/r/ruby/polyrex-calendar'
+    open(File.join(lib, filename), 
+      'UserAgent' => 'PolyrexCalendar'){|x| x.read }
   end
 
   def generate_webpage(xml, xsl)
@@ -54,6 +57,10 @@ class Calendar < Polyrex
 
   def inspect()
     "#<Calendar:%s" % __id__
+  end
+  
+  def month(n)
+    self.records[n-1]
   end
 
   def to_webpage()
@@ -172,7 +179,7 @@ class PolyrexCalendarBase
   
   def find(s)
     dt = Chronic.parse s, now: Time.local(@year,1,1)
-    self.month(dt.month).d(dt.day)
+    @calendar.month(dt.month).d(dt.day)
   end
   
   def to_xml()
@@ -189,11 +196,14 @@ class PolyrexCalendarBase
 
   def inspect()
      %Q(=> #<PolyrexCalendarBase:#{self.object_id} @id="#{@id}", @year="#{@year}">)
+  end  
+  
+  def month(n)
+    @calendar.month(n)
   end
   
-  def month(n=nil)
-    r = @calendar.records
-    n ? r[n-1] : r
+  def months
+    @calendar.records
   end
   
   def parse_events(list)    
@@ -232,7 +242,7 @@ class PolyrexCalendarBase
   end
 
   def this_month()
-    self.month(DateTime.now.month)
+    @calendar.month(DateTime.now.month)
   end
 
   def import_bankholidays(dynarex)
