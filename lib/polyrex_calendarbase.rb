@@ -10,28 +10,14 @@ require 'chronic_cron'
 require 'rxfhelper'
 
 
-h = {
-  calendar: 'calendar[year]',
-     month: 'month[n, title]',
-      week: 'week[n, mon, no, label]',
-       day: 'day[sdate, xday, event, bankholiday, title, sunrise, sunset]',
-     entry: 'entry[time_start, time_end, duration, title]'
-}
-visual_schema = h.values.join '/'
-
-class CalendarObjects < PolyrexObjects
-end
-
-CalendarObjects.new(visual_schema)
-
 module LIBRARY
 
   def fetch_file(filename)
 
     lib = File.dirname(__FILE__)
-    File.read File.join(lib,filename)
+    File.read File.join(lib,'..','stylesheet',filename)
 
-  end
+  end  
 
   def generate_webpage(xml, xsl)
     
@@ -45,6 +31,42 @@ module LIBRARY
     RXFHelper.read(s).first
   end
 end 
+
+h = {
+  calendar: 'calendar[year]',
+     month: 'month[n, title]',
+      week: 'week[n, mon, no, label]',
+       day: 'day[sdate, xday, event, bankholiday, title, sunrise, sunset]',
+     entry: 'entry[time_start, time_end, duration, title]'
+}
+
+visual_schema = h.values.join '/'
+
+class CalendarObjects < PolyrexObjects
+end
+
+CalendarObjects.new(visual_schema)
+
+class CalendarObjects::Month < PolyrexObjects::Month
+  
+  def initialize(filename)
+    
+    @filename = filename
+    
+    buffer = File.read filename
+    @doc = Rexle.new buffer    
+    @node = @doc.root
+    
+  end
+    
+  def save(filename=@filename)    
+    File.write filename, @doc.xml(pretty: true)
+  end
+end
+
+
+
+
 
 class Calendar < Polyrex
   include LIBRARY
@@ -91,7 +113,22 @@ class PolyrexObjects
       def d(n)
         self.records[n-1]
       end
-    
+        
+      def find_today()
+        self.element "//day/summary[xday='#{Time.now.day}']"      
+      end
+      
+      def highlight_today()
+
+        # remove the old highlight if any
+        prev_day = self.at_css '.today'
+        prev_day.attributes.delete :class if prev_day
+        
+        today = find_today()
+        today.attributes[:class] = 'today'
+        
+      end      
+      
     end
     
     class Week
@@ -132,6 +169,7 @@ class PolyrexCalendarBase
   
   def initialize(calendar_file=nil, options={})
 
+    @calendar_file = calendar_file
     opts = {year: Time.now.year.to_s}.merge(options)
     @year = opts[:year]
 
@@ -220,7 +258,8 @@ class PolyrexCalendarBase
     #polyrex
   end
 
-  def save(filename='calendar.xml')
+  def save(filename=@calendar_file)
+    @calendar_file = 'calendar.xml' unless filename
     @calendar.save filename, pretty: true
   end
   
