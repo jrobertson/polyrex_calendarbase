@@ -15,9 +15,9 @@ module LIBRARY
   def fetch_file(filename)
 
     lib = File.dirname(__FILE__)
-    File.read File.join(lib,filename)
+    File.read File.join(lib,'..','stylesheet',filename)
 
-  end
+  end  
 
   def generate_webpage(xml, xsl)
     
