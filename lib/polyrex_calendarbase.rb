@@ -119,7 +119,8 @@ class PolyrexObjects
       end
         
       def find_today()
-        self.element "//day/summary[xday='#{Time.now.day}']"      
+        sdate = Time.now.strftime("%Y-%b-%d")
+        self.element "//day/summary[sdate='#{sdate}']"      
       end
       
       def highlight_today()

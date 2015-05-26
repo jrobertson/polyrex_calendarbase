@@ -62,6 +62,10 @@ class CalendarObjects::Month < PolyrexObjects::Month
   def save(filename=@filename)    
     File.write filename, @doc.xml(pretty: true)
   end
+  
+  def to_xml(options={})
+    @doc.xml(options)
+  end
 end
 
 
