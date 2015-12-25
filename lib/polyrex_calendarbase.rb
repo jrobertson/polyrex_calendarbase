@@ -12,12 +12,18 @@ require 'rxfhelper'
 
 module LIBRARY
 
-  def fetch_file(filename)
+  def fetch_filepath(filename)
 
     lib = File.dirname(__FILE__)
-    File.read File.join(lib,'..','stylesheet',filename)
+    File.join(lib, filename)
+  end
+  
+  def fetch_file(filename)
 
-  end  
+    filepath = fetch_filepath filename
+    read filepath
+  end
+  
 
   def generate_webpage(xml, xsl)
     
@@ -30,7 +36,7 @@ module LIBRARY
   def read(s)
     RXFHelper.read(s).first
   end
-end 
+end
 
 h = {
   calendar: 'calendar[year]',
@@ -89,11 +95,11 @@ class Calendar < Polyrex
 
   def to_webpage()
 
-    year_xsl        = self.xslt ? read(self.xslt) : fetch_file(self.xslt)
+    year_xsl        = read(self.xslt)
     year_layout_css = fetch_file self.css_layout
     year_css        = fetch_file self.css_style
     File.open('self.xml','w'){|f| f.write (self.to_xml pretty: true)}
-    File.open(self.xslt,'w'){|f| f.write year_xsl }
+    File.open(File.basename(self.xslt),'w'){|f| f.write year_xsl }
     #html = Rexslt.new(month_xsl, self.to_xml).to_xml
 
     html = generate_webpage self.to_xml, year_xsl
