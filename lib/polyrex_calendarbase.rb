@@ -178,11 +178,11 @@ class PolyrexCalendarBase
   attr_accessor :xsl, :css, :calendar, :month_xsl, :month_css
   attr_reader :day
   
-  def initialize(calendar_file=nil, options={})
+  def initialize(calendar_file=nil, year: Date.today.year.to_s)
 
     @calendar_file = calendar_file
-    opts = {year: Time.now.year.to_s}.merge(options)
-    @year = opts[:year]
+
+    @year = year.to_s
 
     h = {
       calendar: 'calendar[year]',
