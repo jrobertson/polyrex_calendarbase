@@ -10,11 +10,13 @@ require 'chronic_cron'
 require 'rxfhelper'
 
 
-module LIBRARY
+module LIBRARY2
 
   def fetch_filepath(filename)
 
-    lib = File.dirname(__FILE__)
+    #lib = File.dirname(__FILE__)
+    #File.read filename      
+    lib = 'http://rorbuilder.info/r/ruby/polyrex-calendar'
     File.join(lib, filename)
   end
   
@@ -79,7 +81,7 @@ end
 
 
 class Calendar < Polyrex
-  include LIBRARY
+  include LIBRARY2
 
   attr_accessor :xslt, :css_layout, :css_style, :filename
   
@@ -112,7 +114,7 @@ end
 class PolyrexObjects
   
     class Month
-      include LIBRARY
+      include LIBRARY2
 
       attr_accessor :xslt, :css_layout, :css_style
 
@@ -143,7 +145,6 @@ class PolyrexObjects
     end
     
     class Week
-      include LIBRARY
 
       def inspect()
         "#<CalendarObjects::Week:%s" % __id__
@@ -172,7 +173,7 @@ end
 
 
 class PolyrexCalendarBase
-  include LIBRARY
+  include LIBRARY2
 
 
   attr_accessor :xsl, :css, :calendar, :month_xsl, :month_css
@@ -211,6 +212,7 @@ class PolyrexCalendarBase
       a.group_by(&:month).each do |month, days| 
 
         @calendar.create.month no: month.to_s, title: Date::MONTHNAMES[month]  do |create|
+
           days.each do |x|
             create.day sdate: x.strftime("%Y-%b-%d"), xday: x.day.to_s, title: Date::DAYNAMES[x.wday]
           end
