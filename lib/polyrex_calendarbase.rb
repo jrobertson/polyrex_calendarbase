@@ -14,11 +14,10 @@ module LIBRARY2
 
   def fetch_filepath(filename)
 
-    #lib = File.dirname(__FILE__)
-    #File.read filename      
-    lib = 'http://rorbuilder.info/r/ruby/polyrex-calendar'
-    File.join(lib, filename)
-  end
+    lib = File.dirname(__FILE__)    
+    File.join(lib,'..','stylesheet',filename)
+
+  end  
   
   def fetch_file(filename)
 
@@ -26,7 +25,6 @@ module LIBRARY2
     read filepath
   end
   
-
   def generate_webpage(xml, xsl)
     
     # transform the xml to html
@@ -55,6 +53,67 @@ end
 
 CalendarObjects.new(visual_schema)
 
+
+class PolyrexObjects
+
+  class Month
+    include LIBRARY2
+
+    attr_accessor :xslt, :css_layout, :css_style
+
+    def inspect()
+      "#<CalendarObjects::Month:%s" % __id__
+    end            
+    
+    def d(n)
+      self.records[n-1]
+    end
+      
+    def find_today()
+      sdate = Time.now.strftime("%Y-%b-%d")
+      self.element "//day/summary[sdate='#{sdate}']"      
+    end
+    
+    def highlight_today()
+
+      # remove the old highlight if any
+      prev_day = self.at_css '.today'
+      prev_day.attributes.delete :class if prev_day
+      
+      today = find_today()
+      today.attributes[:class] = 'today'
+      
+    end      
+    
+  end
+  
+  class Week
+
+    def inspect()
+      "#<CalendarObjects::Week:%s" % __id__
+    end
+    
+  end  
+  
+  class Day
+        
+    def date()
+      Date.parse(self.sdate)
+    end
+
+    def wday()
+      self.date.wday
+    end   
+
+    def day()
+      self.date.day
+    end
+    
+  end
+
+end
+
+
 class CalendarObjects::Month < PolyrexObjects::Month
   
   def initialize(filename)
@@ -75,7 +134,6 @@ class CalendarObjects::Month < PolyrexObjects::Month
     @doc.xml(options)
   end
 end
-
 
 
 
@@ -111,69 +169,12 @@ class Calendar < Polyrex
   end           
 end
 
-class PolyrexObjects
-  
-    class Month
-      include LIBRARY2
-
-      attr_accessor :xslt, :css_layout, :css_style
-
-      def inspect()
-        "#<CalendarObjects::Month:%s" % __id__
-      end            
-      
-      def d(n)
-        self.records[n-1]
-      end
-        
-      def find_today()
-        sdate = Time.now.strftime("%Y-%b-%d")
-        self.element "//day/summary[sdate='#{sdate}']"      
-      end
-      
-      def highlight_today()
-
-        # remove the old highlight if any
-        prev_day = self.at_css '.today'
-        prev_day.attributes.delete :class if prev_day
-        
-        today = find_today()
-        today.attributes[:class] = 'today'
-        
-      end      
-      
-    end
-    
-    class Week
-
-      def inspect()
-        "#<CalendarObjects::Week:%s" % __id__
-      end
-      
-    end  
-    
-    class Day
-          
-      def date()
-        Date.parse(self.sdate)
-      end
-
-      def wday()
-        self.date.wday
-      end   
-
-      def day()
-        self.date.day
-      end
-      
-    end
-
-end
-
 
 
 class PolyrexCalendarBase
   include LIBRARY2
+  include RXFHelperModule
+  using ColouredText  
 
 
   attr_accessor :xsl, :css, :calendar, :month_xsl, :month_css
