@@ -59,7 +59,7 @@ class PolyrexObjects
   class Month
     include LIBRARY2
 
-    attr_accessor :xslt, :css_layout, :css_style
+    attr_accessor :xslt, :css_layout, :css_style, :css_print
 
     def inspect()
       "#<CalendarObjects::Month:%s" % __id__
@@ -141,7 +141,7 @@ end
 class Calendar < Polyrex
   include LIBRARY2
 
-  attr_accessor :xslt, :css_layout, :css_style, :filename
+  attr_accessor :xslt, :css_layout, :css_style, :css_print, :filename
   
   alias months records
 
@@ -155,16 +155,22 @@ class Calendar < Polyrex
 
   def to_webpage()
 
-    year_xsl        = read(self.xslt)
+    year_xsl        = fetch_file(self.xslt)
     year_layout_css = fetch_file self.css_layout
     year_css        = fetch_file self.css_style
+    year_print_css  = fetch_file self.css_print
     File.open('self.xml','w'){|f| f.write (self.to_xml pretty: true)}
     File.open(File.basename(self.xslt),'w'){|f| f.write year_xsl }
     #html = Rexslt.new(month_xsl, self.to_xml).to_xml
 
     html = generate_webpage self.to_xml, year_xsl
-    {self.filename => html, 
-      self.css_layout => year_layout_css, self.css_style => year_css}
+    
+    {
+      self.filename => html, 
+      self.css_layout => year_layout_css, 
+      self.css_style => year_css, 
+      self.css_print => year_print_css
+    }
 
   end           
 end

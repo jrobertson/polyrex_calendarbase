@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'polyrex_calendarbase'
-  s.version = '0.3.0'
+  s.version = '0.3.1'
   s.summary = 'A calendar object which can be output to XML format from a ' + 
       'Polyrex document object'
   s.authors = ['James Robertson']
